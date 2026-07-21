@@ -272,6 +272,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (window.showToast) window.showToast(`"${title}" saved successfully!`, "success");
             else alert(`"${title}" saved successfully!`);
         });
+
+        // Delete the selected JD from LocalStorage
+        const deleteJDBtn = document.getElementById('deleteJDBtn');
+        if (deleteJDBtn) {
+            deleteJDBtn.addEventListener('click', () => {
+                const selectedTitle = jdSelector.value;
+                if (!selectedTitle) {
+                    if (window.showToast) window.showToast("Please select a saved Job Description from the dropdown to delete!", "warning");
+                    else alert("Please select a saved Job Description from the dropdown to delete!");
+                    return;
+                }
+
+                const library = JSON.parse(localStorage.getItem('jd_library')) || {};
+                if (library[selectedTitle]) {
+                    delete library[selectedTitle];
+                    localStorage.setItem('jd_library', JSON.stringify(library));
+
+                    jdInput.value = "";
+                    loadJDLibrary();
+
+                    if (window.showToast) window.showToast(`"${selectedTitle}" deleted successfully!`, "success");
+                    else alert(`"${selectedTitle}" deleted successfully!`);
+                }
+            });
+        }
     }
 
     // --- Modal Logic ---
