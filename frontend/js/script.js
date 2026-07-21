@@ -507,12 +507,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 const svgPhone = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>`;
                 const svgLocation = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
 
+                const topEvidence = candidate.top_deliverables || (candidate.work_evidence && candidate.work_evidence.length > 0 ? candidate.work_evidence[0] : '');
+
                 return `
                     <td>
                         <div class="candidate-name">${candidate.candidate_name || 'Unknown Candidate'}</div>
                         <div><span class="candidate-type-badge ${candTypeClass}">${candidate.candidate_type || 'Candidate'}</span></div>
                         <div class="candidate-meta">${svgEmail} ${candidate.contact_email !== 'Not found' ? candidate.contact_email : 'N/A'}</div>
                         <div class="candidate-meta">${svgPhone} ${candidate.contact_phone !== 'Not found' ? candidate.contact_phone : 'N/A'}</div>
+                        ${topEvidence ? `<div style="margin-top: 6px; font-size: 11px; color: var(--text-main); background: rgba(99, 102, 241, 0.08); padding: 4px 8px; border-radius: 4px; border-left: 3px solid var(--primary); font-weight: 500;">
+                            <strong>📌 Work Proof:</strong> ${topEvidence}
+                        </div>` : ''}
                     </td>
                     <td>
                         <span class="status-badge ${badgeClass}">
@@ -752,6 +757,10 @@ window.openDashboard = function (index) {
         ? cand.missing_requirements.map(m => `<li>${m}</li>`).join('')
         : '<li>None!</li>';
 
+    const workEvidenceHtml = (cand.work_evidence && cand.work_evidence.length > 0)
+        ? cand.work_evidence.map(e => `<li style="margin-bottom: 6px; line-height: 1.4;">📌 ${e}</li>`).join('')
+        : `<li>📌 ${cand.top_deliverables || 'Evaluated based on overall resume qualification'}</li>`;
+
     modalBody.innerHTML = `
         <div class="dashboard-header">
             <h2>${cand.candidate_name || cand.source_file}</h2>
@@ -763,6 +772,15 @@ window.openDashboard = function (index) {
         </div>
 
         <div class="dashboard-grid">
+            <div class="dashboard-card" style="grid-column: span 2; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.2);">
+                <h4 style="color: var(--primary); display: flex; align-items: center; margin-bottom: 10px;">
+                    🎯 Work Evidence & Achievements (Selection Proof)
+                </h4>
+                <ul class="matched-list" style="margin-top: 4px; color: var(--text-main); font-size: 13px;">
+                    ${workEvidenceHtml}
+                </ul>
+            </div>
+
             <div class="dashboard-card">
                 <h4>Pillar Breakdown</h4>
                 

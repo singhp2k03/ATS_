@@ -171,6 +171,10 @@ class CandidateEvaluationAI(BaseModel):
     role_fit_content: int     = Field(default=0, description="Fit score for Content Creation role out of 100")
     role_fit_finalization: int= Field(default=0, description="Fit score for Finalization role out of 100")
 
+    # Important Work Evidence & Achievements
+    top_deliverables: str     = Field(default="", description="1-sentence snippet summarizing the single strongest campaign/project achievement of the candidate")
+    work_evidence: List[str]  = Field(default_factory=list, description="2 to 4 bullet points of concrete proof of work extracted from resume (e.g. number of creators onboarded, campaign reach, scripts reviewed, contracts negotiated, internships completed)")
+
     skills: List[str]         = Field(default_factory=list, description="Top matching skills")
     missing_requirements: List[str] = Field(default_factory=list, description="Missing requirements")
 
@@ -244,6 +248,7 @@ CRITICAL RULES FOR FRESHER & INTERN EXPERIENCE EVALUATION:
 5. Evaluate `niche_fit_score` (0-100) based on exposure to Men's Grooming, Skincare, D2C Brands, FMCG, Beauty, Instagram Reels, YouTube Shorts.
 6. Provide score breakdowns for all 3 role fits (scouting, content, finalization).
 7. DO NOT score Location. Just extract the precise city/neighborhood for candidate_location.
+8. WORK EVIDENCE EXTRACTION: Extract 2 to 4 bullet points of concrete proof of work in `work_evidence` (e.g., specific campaigns run, number of creators onboarded, video reach/CPM metrics, script review count, commercial negotiation results, or agency internships). Also summarize the single best work highlight in `top_deliverables`.
 """
 
 # 👉 NEW: The AI Router Function
