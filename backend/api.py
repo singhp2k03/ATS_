@@ -248,7 +248,15 @@ CRITICAL RULES FOR FRESHER & INTERN EXPERIENCE EVALUATION:
 5. Evaluate `niche_fit_score` (0-100) based on exposure to Men's Grooming, Skincare, D2C Brands, FMCG, Beauty, Instagram Reels, YouTube Shorts.
 6. Provide score breakdowns for all 3 role fits (scouting, content, finalization).
 7. DO NOT score Location. Just extract the precise city/neighborhood for candidate_location.
-8. WORK EVIDENCE EXTRACTION: Extract AT LEAST 4 TO 5 distinct, bulleted key work experience evidence points in `work_evidence` (e.g. specific campaigns managed, number of creators onboarded/scouted, video reach/CPM/ROAS metrics, scripts reviewed, contracts/MOUs negotiated, or agency internships & projects). Make each bullet point specific with numbers/metrics wherever possible. Also summarize the single best work highlight in `top_deliverables`.
+8. INFLUENCER MARKETING WORK EVIDENCE EXTRACTION:
+Extract AT LEAST 4 TO 5 distinct, bulleted key work experience evidence points in `work_evidence` STRICTLY focusing on Influencer Marketing, Creator Collaborations, Campaign Execution, and Social Media Strategy.
+Each bullet point MUST showcase specific influencer/social media proof of work from the resume, such as:
+- Number of Instagram/YouTube creators scouted, contacted, or onboarded
+- Influencer campaign performance metrics (e.g. views, engagement rate %, CPM, CPA, ROAS, conversions)
+- Video content conceptualization, script review/editing for Reels/Shorts, or storyboards
+- Rate card negotiations, commercial contract terms, deliverable MOUs, and compensation tracking
+- Agency influencer internships, campus ambassador programs, or personal creator/social media channel management
+Do NOT include generic or unrelated job duties. If candidate is a fresher, highlight their influencer agency internships, campus outreach projects, and social media/creator experience. Also summarize the single best influencer marketing highlight in `top_deliverables`.
 """
 
 # 👉 NEW: The AI Router Function
