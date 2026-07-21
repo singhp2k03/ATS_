@@ -758,8 +758,13 @@ window.openDashboard = function (index) {
         : '<li>None!</li>';
 
     const workEvidenceHtml = (cand.work_evidence && cand.work_evidence.length > 0)
-        ? cand.work_evidence.map(e => `<li style="margin-bottom: 6px; line-height: 1.4;">📌 ${e}</li>`).join('')
-        : `<li>📌 ${cand.top_deliverables || 'Evaluated based on overall resume qualification'}</li>`;
+        ? cand.work_evidence.map((e, idx) => `
+            <div style="display: flex; gap: 8px; margin-bottom: 8px; font-size: 0.85em; line-height: 1.4; background: var(--bg-card); padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border-color);">
+                <span style="color: var(--primary); font-weight: 700; flex-shrink: 0;">#${idx + 1}</span>
+                <span style="color: var(--text-main);">${e}</span>
+            </div>
+        `).join('')
+        : `<div style="font-size: 0.85em; color: var(--text-muted); padding: 6px;">📌 ${cand.top_deliverables || 'Evaluated based on overall resume work profile'}</div>`;
 
     modalBody.innerHTML = `
         <div class="dashboard-header">
@@ -772,13 +777,11 @@ window.openDashboard = function (index) {
         </div>
 
         <div class="dashboard-grid">
-            <div class="dashboard-card" style="grid-column: span 2; background: rgba(99, 102, 241, 0.04); border: 1px solid rgba(99, 102, 241, 0.2);">
-                <h4 style="color: var(--primary); display: flex; align-items: center; margin-bottom: 10px;">
-                    🎯 Work Evidence & Achievements (Selection Proof)
-                </h4>
-                <ul class="matched-list" style="margin-top: 4px; color: var(--text-main); font-size: 13px;">
+            <div class="dashboard-card">
+                <h4>Key Work Experience Evidence</h4>
+                <div style="margin-top: 10px;">
                     ${workEvidenceHtml}
-                </ul>
+                </div>
             </div>
 
             <div class="dashboard-card">

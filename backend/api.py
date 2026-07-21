@@ -171,9 +171,9 @@ class CandidateEvaluationAI(BaseModel):
     role_fit_content: int     = Field(default=0, description="Fit score for Content Creation role out of 100")
     role_fit_finalization: int= Field(default=0, description="Fit score for Finalization role out of 100")
 
-    # Important Work Evidence & Achievements
-    top_deliverables: str     = Field(default="", description="1-sentence snippet summarizing the single strongest campaign/project achievement of the candidate")
-    work_evidence: List[str]  = Field(default_factory=list, description="2 to 4 bullet points of concrete proof of work extracted from resume (e.g. number of creators onboarded, campaign reach, scripts reviewed, contracts negotiated, internships completed)")
+    # Key Work Experience Evidence
+    top_deliverables: str     = Field(default="", description="1-sentence summary of candidate's single strongest work achievement or campaign result")
+    work_evidence: List[str]  = Field(default_factory=list, description="At least 4 to 5 specific, bulleted key work experience evidence items extracted from resume (e.g. number of creators onboarded, campaign reach, scripts reviewed, contracts negotiated, internships completed, tools used)")
 
     skills: List[str]         = Field(default_factory=list, description="Top matching skills")
     missing_requirements: List[str] = Field(default_factory=list, description="Missing requirements")
@@ -248,7 +248,7 @@ CRITICAL RULES FOR FRESHER & INTERN EXPERIENCE EVALUATION:
 5. Evaluate `niche_fit_score` (0-100) based on exposure to Men's Grooming, Skincare, D2C Brands, FMCG, Beauty, Instagram Reels, YouTube Shorts.
 6. Provide score breakdowns for all 3 role fits (scouting, content, finalization).
 7. DO NOT score Location. Just extract the precise city/neighborhood for candidate_location.
-8. WORK EVIDENCE EXTRACTION: Extract 2 to 4 bullet points of concrete proof of work in `work_evidence` (e.g., specific campaigns run, number of creators onboarded, video reach/CPM metrics, script review count, commercial negotiation results, or agency internships). Also summarize the single best work highlight in `top_deliverables`.
+8. WORK EVIDENCE EXTRACTION: Extract AT LEAST 4 TO 5 distinct, bulleted key work experience evidence points in `work_evidence` (e.g. specific campaigns managed, number of creators onboarded/scouted, video reach/CPM/ROAS metrics, scripts reviewed, contracts/MOUs negotiated, or agency internships & projects). Make each bullet point specific with numbers/metrics wherever possible. Also summarize the single best work highlight in `top_deliverables`.
 """
 
 # 👉 NEW: The AI Router Function
@@ -319,6 +319,21 @@ async def evaluate_resume(file_bytes: bytes, filename: str, jd: str, cfg: Filter
             result["contact_email"] = result.get("contact_email") or "Not found"
             result["contact_phone"] = result.get("contact_phone") or "Not found"
             result["candidate_name"] = result.get("candidate_name") or clean_name
+
+            # Automatic Python Experience Calculation Safeguard
+            ft_yrs = float(result.get("full_time_years", 0) or 0)
+            intern_m = float(result.get("internship_months", 0) or 0)
+            epe_yrs = float(result.get("equivalent_practical_years", 0) or 0)
+
+            if epe_yrs <= 0:
+                epe_yrs = round(ft_yrs + (intern_m / 12.0) * 0.8, 1)
+                result["equivalent_practical_years"] = epe_yrs
+
+            exp_years = float(result.get("experience_years", 0) or 0)
+            if exp_years <= 0 and epe_yrs > 0:
+                exp_years = epe_yrs
+                result["experience_years"] = exp_years
+
             is_qualified = True
             rejection_reasons = []
             
