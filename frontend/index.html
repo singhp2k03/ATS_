@@ -23,6 +23,28 @@
         <div class="card">
             <form id="atsForm">
 
+                <!-- ⚡ INFLUENCER ROLE PRESET BUTTONS -->
+                <div class="role-presets-container" style="margin-bottom: 20px; padding: 14px; background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 8px;">
+                    <label style="font-weight: 600; font-size: 13px; margin-bottom: 10px; display: block; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px;">
+                        ⚡ Godrej MUUCHSTAC Role Presets (Click to Auto-Load JD & AI Rubric)
+                    </label>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" class="role-preset-btn active" data-preset="scouting">
+                            🔍 Scouting (0–2 Yrs)
+                        </button>
+                        <button type="button" class="role-preset-btn" data-preset="content">
+                            🎬 Content Creation (2 Yrs)
+                        </button>
+                        <button type="button" class="role-preset-btn" data-preset="finalization">
+                            🤝 Finalization (0–2 Yrs)
+                        </button>
+                        <button type="button" class="role-preset-btn" data-preset="general">
+                            📋 Custom / General
+                        </button>
+                    </div>
+                    <input type="hidden" id="role_preset" value="scouting">
+                </div>
+
                 <div class="form-group" style="position: relative;">
                     <div
                         style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">

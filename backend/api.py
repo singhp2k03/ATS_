@@ -136,6 +136,7 @@ class FilterConfig:
     mand_skill: bool
     mand_loc: bool
     passing_score: int
+    role_preset: str = "general"
 
 # 👉 NEW: Schema for JD Extraction
 class JDExtractionAI(BaseModel):
@@ -157,7 +158,19 @@ class CandidateEvaluationAI(BaseModel):
     candidate_location: Optional[str] = Field(default="Unknown", description="Specific City or area where candidate lives (e.g., 'Navi Mumbai', 'Pune')")
     contact_email: Optional[str]      = Field(default="Not found", description="Candidate email")
     contact_phone: Optional[str]      = Field(default="Not found", description="Candidate phone")
-    experience_years: float   = Field(default=0.0, description="Years of relevant experience")
+    experience_years: float   = Field(default=0.0, description="Years of relevant work/practical experience")
+    
+    # Advanced Fresher & Role Specificity Fields
+    full_time_years: float    = Field(default=0.0, description="Total full-time professional experience in years")
+    internship_months: float  = Field(default=0.0, description="Total internship experience in months")
+    equivalent_practical_years: float = Field(default=0.0, description="Weighted practical experience (Full-time yrs + (Internship months/12)*0.8 + Project credits)")
+    candidate_type: str       = Field(default="Experienced Professional", description="Candidate type: 'Experienced Professional', 'High-Potential Intern / Fresher', or 'Entry-Level Candidate'")
+    niche_fit_score: int      = Field(default=0, description="Alignment with D2C / Men's Grooming / FMCG / Beauty / Social Media niche out of 100")
+    niche_fit_details: str    = Field(default="", description="Short explanation of candidate's D2C/Grooming niche alignment")
+    role_fit_scouting: int    = Field(default=0, description="Fit score for Scouting role out of 100")
+    role_fit_content: int     = Field(default=0, description="Fit score for Content Creation role out of 100")
+    role_fit_finalization: int= Field(default=0, description="Fit score for Finalization role out of 100")
+
     skills: List[str]         = Field(default_factory=list, description="Top matching skills")
     missing_requirements: List[str] = Field(default_factory=list, description="Missing requirements")
 
@@ -190,8 +203,29 @@ def build_prompt(resume_text: str, jd: str, cfg: FilterConfig) -> str:
     skills_req = f"Required Skills: {cfg.required_skills} (Mandatory: {cfg.mand_skill})" if cfg.required_skills else ""
     edu_req = f"Required Education: {cfg.required_education} (Mandatory: {cfg.mand_edu})" if cfg.required_education else ""
     
-    return f"""You are an HR Gatekeeper. Respond in JSON. 
+    role_rubric = ""
+    if cfg.role_preset == "scouting":
+        role_rubric = """
+SPECIAL RUBRIC - INFLUENCER SCOUTING (0-2 YRS):
+- Focus Areas: Creator discovery across Instagram & YouTube, creator outreach, database management, engagement metrics evaluation, audience relevance, trend tracking.
+- Freshers & Interns: Full credit for internships in influencer marketing, agency outreach, managing campus fest creators/ambassadors, running creator databases.
+"""
+    elif cfg.role_preset == "content":
+        role_rubric = """
+SPECIAL RUBRIC - INFLUENCER CONTENT CREATION (2 YRS FIXED):
+- Focus Areas: Video conceptualization, script review/adaptation, video production coordination, campaign performance metrics (CPM, ROAS, Engagement Rate), brand narrative consistency.
+- Candidate must show strong script breakdown and campaign analysis capability.
+"""
+    elif cfg.role_preset == "finalization":
+        role_rubric = """
+SPECIAL RUBRIC - INFLUENCER FINALIZATION (0-2 YRS):
+- Focus Areas: Contract negotiation, commercial deal closing, MOUs, deliverable schedules, compensation negotiation, relationship management.
+- Freshers & Interns: Give credit for commercial negotiation experience, agency account management internships, event/vendor deal closure.
+"""
 
+    return f"""You are an expert Talent Acquisition AI for Godrej Consumer Products Ltd (MUUCHSTAC - Men's Grooming). Respond in JSON matching CandidateEvaluationAI schema.
+
+ROLE TYPE / PRESET: {cfg.role_preset.upper()}
 JD: {jd}
 RESUME: {resume_text}
 
@@ -200,14 +234,16 @@ Experience Range: {cfg.min_exp} to {cfg.max_exp} yrs (Mandatory: {cfg.mand_exp})
 {skills_req}
 {edu_req}
 
-SCORING (100 pts total for AI):
-Exp (40 pts)
-Skills (30 pts)
-Edu (30 pts)
+{role_rubric}
 
-RULES:
-1. DO NOT score Location. Just extract the precise city/neighborhood for candidate_location.
-2. Carefully calculate the candidate's total years of professional work experience and output it as a number in experience_years. If their years fall outside the Experience Range, lower their Exp score.
+CRITICAL RULES FOR FRESHER & INTERN EXPERIENCE EVALUATION:
+1. Carefully extract `full_time_years` and `internship_months`.
+2. Compute `equivalent_practical_years` = full_time_years + (internship_months / 12) * 0.8 + (0.25 if candidate managed personal creator channels/live projects else 0).
+3. Set `experience_years` equal to `equivalent_practical_years` so that capable freshers with internship/project experience are NOT unfairly scored as 0 or rejected when min_exp is 0.
+4. Classify `candidate_type` as 'Experienced Professional' (if full_time_years >= 1.5), 'High-Potential Intern / Fresher' (if internship_months >= 3 or project experience exists), or 'Entry-Level Candidate'.
+5. Evaluate `niche_fit_score` (0-100) based on exposure to Men's Grooming, Skincare, D2C Brands, FMCG, Beauty, Instagram Reels, YouTube Shorts.
+6. Provide score breakdowns for all 3 role fits (scouting, content, finalization).
+7. DO NOT score Location. Just extract the precise city/neighborhood for candidate_location.
 """
 
 # 👉 NEW: The AI Router Function
@@ -253,6 +289,15 @@ async def evaluate_resume(file_bytes: bytes, filename: str, jd: str, cfg: Filter
                     "contact_email": "Not found",
                     "contact_phone": "Not found",
                     "experience_years": 0.0,
+                    "full_time_years": 0.0,
+                    "internship_months": 0.0,
+                    "equivalent_practical_years": 0.0,
+                    "candidate_type": "Entry-Level Candidate",
+                    "niche_fit_score": 0,
+                    "niche_fit_details": "Unreadable document",
+                    "role_fit_scouting": 0,
+                    "role_fit_content": 0,
+                    "role_fit_finalization": 0,
                     "skills": [],
                     "missing_requirements": ["Readable text content"],
                     "total_score": 0,
@@ -284,7 +329,7 @@ async def evaluate_resume(file_bytes: bytes, filename: str, jd: str, cfg: Filter
                 is_qualified = False
                 rejection_reasons.append(f"Location commute too far ({geo_data['status']})")
 
-            # Mandatory Experience filter
+            # Mandatory Experience filter (uses experience_years / equivalent_practical_years)
             exp_years = float(result.get("experience_years", 0))
             if cfg.mand_exp and (exp_years < cfg.min_exp or exp_years > cfg.max_exp):
                 is_qualified = False
@@ -331,6 +376,15 @@ async def evaluate_resume(file_bytes: bytes, filename: str, jd: str, cfg: Filter
                 "contact_email": "Not found",
                 "contact_phone": "Not found",
                 "experience_years": 0.0,
+                "full_time_years": 0.0,
+                "internship_months": 0.0,
+                "equivalent_practical_years": 0.0,
+                "candidate_type": "Entry-Level Candidate",
+                "niche_fit_score": 0,
+                "niche_fit_details": "Processing error",
+                "role_fit_scouting": 0,
+                "role_fit_content": 0,
+                "role_fit_finalization": 0,
                 "skills": [],
                 "missing_requirements": ["Valid resume document"],
                 "total_score": 0,
@@ -375,7 +429,7 @@ async def analyze_batch_parallel(
     files: List[UploadFile] = File(...),
     job_description: str = Form(...),
     min_experience_years: float = Form(0.0),
-    max_experience_years: float = Form(7.0), # 👉 NEW
+    max_experience_years: float = Form(7.0),
     mandatory_experience: bool = Form(False),
     required_skills: str = Form(""),
     mandatory_skills: bool = Form(False),
@@ -385,7 +439,8 @@ async def analyze_batch_parallel(
     mandatory_location: bool = Form(False),
     passing_score: int = Form(60),
     shortlist_top_n: int = Form(0),
-    ai_provider: str = Form("gemini") # 👉 NEW: Receive the engine choice
+    role_preset: str = Form("general"), # 👉 NEW: Influencer role preset (scouting, content, finalization, general)
+    ai_provider: str = Form("gemini")
 ):
     # Parse and prepare all valid resume files
     file_data = []
@@ -398,7 +453,7 @@ async def analyze_batch_parallel(
         raise HTTPException(status_code=400, detail="No valid files (.pdf or .docx) found.")
 
     cfg = FilterConfig(min_experience_years, max_experience_years, required_skills, required_education, target_location, 
-                       mandatory_experience, mandatory_education, mandatory_skills, mandatory_location, passing_score)
+                       mandatory_experience, mandatory_education, mandatory_skills, mandatory_location, passing_score, role_preset)
 
     # Evaluate all resumes in parallel
     tasks = [evaluate_resume(fb, fn, job_description, cfg, ai_provider) for fb, fn in file_data]
@@ -408,6 +463,7 @@ async def analyze_batch_parallel(
         raise HTTPException(status_code=500, detail="All files failed to process.")
 
     # Sort results: qualified first, then by highest score descending
+
     raw_results.sort(key=lambda c: (not c.get("is_qualified", False), -c.get("total_score", 0)))
     return raw_results[:shortlist_top_n] if shortlist_top_n > 0 else raw_results
 

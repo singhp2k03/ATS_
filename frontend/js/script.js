@@ -4,6 +4,108 @@ const API_BASE_URL = window.location.origin.startsWith('file:')
     ? 'http://127.0.0.1:8000' 
     : window.location.origin;
 
+// --- ⚡ MUUCHSTAC INFLUENCER ROLE PRESETS ---
+const MUUCHSTAC_PRESETS = {
+    scouting: {
+        title: "Influencer Marketing Executive — Scouting",
+        min_exp: "0",
+        max_exp: "2",
+        skills: "influencer scouting, creator outreach, database management, engagement metrics, audience relevance, Instagram, YouTube, trend tracking, brand fit evaluation",
+        education: "Bachelor's degree in Marketing, Business Management, Mass Media, or related field",
+        location: "Borivali, Mumbai",
+        jd: `Company: Godrej Consumer Products Ltd (MUUCHSTAC)
+Location: Borivali
+Employment Type: Full-Time
+Industry Context: Men's grooming brand (skincare, beard care, haircare)
+
+Core Function:
+Identifying, evaluating, and onboarding influencers/creators for campaigns.
+
+Key Responsibilities:
+1. Source and identify suitable male and female influencers, content creators, and models across Instagram, YouTube, and emerging platforms
+2. Evaluate creators for brand fit — assess audience relevance, engagement metrics, and content quality
+3. Track digital/social media trends and monitor rising/emerging creators
+4. Build and maintain a structured, up-to-date influencer database with key creator details
+5. Coordinate with the internal Influencer Marketing Team for onboarding, communication, and timely campaign execution
+6. Shortlist profiles and share insights to support campaign planning and decision-making
+
+Experience Required:
+0–2 years in influencer marketing or performance marketing, specifically in scouting and outreach
+
+Required Skills / Competencies:
+- Strong understanding of the influencer marketing landscape (platforms, trends, best practices)
+- On-ground or hands-on exposure to influencer marketing, creator outreach, or brand-building activities
+- Eagerness to learn and grow into a long-term influencer/performance marketing role
+- Comfortable in a young, fast-paced, collaborative environment`
+    },
+    content: {
+        title: "Influencer Marketing Executive — Content Creation",
+        min_exp: "2",
+        max_exp: "5",
+        skills: "video content strategy, script review, content conceptualization, campaign performance analysis, cross-functional team management, brand consistency, video production coordination",
+        education: "Bachelor's degree in Marketing, Business Management, Mass Media, or related field",
+        location: "Borivali, Mumbai",
+        jd: `Company: Godrej Consumer Products Ltd (MUUCHSTAC)
+Location: Borivali
+Employment Type: Full-time
+Industry Context: Men's grooming brand (skincare, beard care, haircare)
+
+Core Function:
+Conceptualizing, producing, and managing influencer video content and campaign performance.
+
+Key Responsibilities:
+1. Conceptualize video content and explain it to influencers to align with brand messaging
+2. Coordinate video production and release — work with influencers and creative teams to plan, produce, and release content aligned with campaign objectives
+3. Monitor and analyze campaign performance; provide insights and improvement recommendations
+4. Stay current on trends in influencer marketing, social media platforms, and video content strategy
+5. Ensure all influencer video content is consistent with brand identity and values
+6. Manage influencer relationships — maintain positive rapport, clear communication, and collaboration
+7. Review and adapt scripts to sync with influencer storytelling styles and emerging trends
+
+Experience Required:
+2 years (fixed) in influencer marketing or performance marketing, specifically in campaign execution
+
+Required Skills / Competencies:
+- Strong understanding of the influencer marketing landscape (platforms, trends, best practices)
+- Excellent communication and project management skills
+- Ability to lead and manage cross-functional teams
+- Strong analytical and problem-solving skills
+- Ability to measure campaign success and derive optimization insights`
+    },
+    finalization: {
+        title: "Influencer Marketing Executive — Finalization",
+        min_exp: "0",
+        max_exp: "2",
+        skills: "contract negotiation, deal finalization, influencer coordination, relationship management, campaign execution monitoring, deliverables tracking, compensation negotiation",
+        education: "Bachelor's degree in Marketing, Business Management, Mass Media, or related field",
+        location: "Borivali, Mumbai",
+        jd: `Company: Godrej Consumer Products Ltd (MUUCHSTAC)
+Location: Borivali
+Employment Type: Full-Time
+Industry Context: Men's grooming brand (skincare, beard care, haircare)
+
+Core Function:
+Finalizing influencer selection, negotiating contracts, and managing campaign execution through to completion.
+
+Key Responsibilities:
+1. Evaluate and finalize influencers aligned with brand goals and campaign objectives
+2. Negotiate contracts — terms, deliverables, timelines, and compensation; finalize agreements before campaign launch
+3. Build and maintain strong professional relationships with influencers/creators through consistent communication
+4. Monitor campaign execution — track influencer activities, content delivery, and ensure requirements are met on time
+5. Stay updated on trends in influencer marketing, social media, and digital marketing strategy
+
+Experience Required:
+0–2 years in influencer marketing or performance marketing, with focus on influencer coordination and collaboration
+
+Required Skills / Competencies:
+- Strong understanding of social media platforms, influencer trends, and creator ecosystems
+- Good communication and negotiation skills for managing influencers and finalizing deals
+- Strong organizational skills — able to manage multiple influencers, timelines, and deliverables simultaneously
+- Eagerness to learn and grow into a long-term influencer/performance marketing role
+- Comfortable in a young, fast-paced, collaborative environment`
+    }
+};
+
 let globalCandidatesData = [];
 let selectedFiles = [];
 const duplicateNames = new Set();
@@ -36,6 +138,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeIcon.innerHTML = sunIcon;
             }
         });
+    }
+
+    // --- ⚡ INFLUENCER ROLE PRESET BUTTON LISTENERS ---
+    const presetButtons = document.querySelectorAll('.role-preset-btn');
+    const hiddenRolePresetInput = document.getElementById('role_preset');
+
+    const applyPreset = (presetKey) => {
+        presetButtons.forEach(btn => {
+            if (btn.dataset.preset === presetKey) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+
+        if (hiddenRolePresetInput) hiddenRolePresetInput.value = presetKey;
+
+        const preset = MUUCHSTAC_PRESETS[presetKey];
+        if (preset) {
+            const jdInput = document.getElementById('job_description');
+            const minExpInput = document.getElementById('min_experience_years');
+            const maxExpInput = document.getElementById('max_experience_years');
+            const skillsInput = document.getElementById('required_skills');
+            const eduInput = document.getElementById('required_education');
+            const locInput = document.getElementById('target_location');
+
+            if (jdInput) jdInput.value = preset.jd;
+            if (minExpInput) minExpInput.value = preset.min_exp;
+            if (maxExpInput) maxExpInput.value = preset.max_exp;
+            if (skillsInput) skillsInput.value = preset.skills;
+            if (eduInput) eduInput.value = preset.education;
+            if (locInput) locInput.value = preset.location;
+
+            if (window.showToast) {
+                window.showToast(`Loaded "${preset.title}" preset!`, 'success');
+            }
+        }
+    };
+
+    presetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            applyPreset(btn.dataset.preset);
+        });
+    });
+
+    // Auto-apply default scouting preset on page load if inputs are empty
+    const jdVal = document.getElementById('job_description')?.value;
+    if (!jdVal || jdVal.trim() === "") {
+        applyPreset("scouting");
     }
 
     // --- 📚 JOB DESCRIPTION LIBRARY ---
@@ -330,10 +478,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Helper to generate Candidate Row HTML
             const getRowHTML = (candidate, globalIndex) => {
-                const svgEmail = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px; vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>`;
-                const svgPhone = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px; vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>`;
-                const svgLocation = `<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px; vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
-
                 const badgeClass = candidate.is_qualified ? 'status-qualified' : 'status-rejected';
                 const iconSvg = candidate.is_qualified
                     ? `<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor" style="margin-right: 4px;"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>`
@@ -345,9 +489,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (candidate.location_relevancy === 'Medium') locColor = '#f59e0b';
                 else if (candidate.location_relevancy === 'Low' || candidate.location_relevancy === 'Relocation') locColor = 'var(--danger)';
 
+                // Candidate Type Badge
+                let candTypeClass = 'type-pro';
+                if ((candidate.candidate_type || '').includes('Intern') || (candidate.candidate_type || '').includes('Fresher')) {
+                    candTypeClass = 'type-intern';
+                } else if ((candidate.candidate_type || '').includes('Entry')) {
+                    candTypeClass = 'type-entry';
+                }
+
+                // Niche Fit Badge
+                const nicheScore = candidate.niche_fit_score || 0;
+                let nicheClass = 'niche-low';
+                if (nicheScore >= 75) nicheClass = 'niche-high';
+                else if (nicheScore >= 50) nicheClass = 'niche-med';
+
+                const svgEmail = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>`;
+                const svgPhone = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>`;
+                const svgLocation = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
+
                 return `
                     <td>
                         <div class="candidate-name">${candidate.candidate_name || 'Unknown Candidate'}</div>
+                        <div><span class="candidate-type-badge ${candTypeClass}">${candidate.candidate_type || 'Candidate'}</span></div>
                         <div class="candidate-meta">${svgEmail} ${candidate.contact_email !== 'Not found' ? candidate.contact_email : 'N/A'}</div>
                         <div class="candidate-meta">${svgPhone} ${candidate.contact_phone !== 'Not found' ? candidate.contact_phone : 'N/A'}</div>
                     </td>
@@ -355,12 +518,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="status-badge ${badgeClass}">
                             ${iconSvg} ${statusText}
                         </span>
+                        <div style="margin-top: 6px;">
+                            <span class="niche-fit-badge ${nicheClass}">Niche Fit: ${nicheScore}%</span>
+                        </div>
                     </td>
                     <td><span class="total-score">${candidate.total_score}</span><span class="score-muted">/100</span></td>
                     <td>
                         <strong>${candidate.experience_score}</strong><span class="score-muted">/40</span><br>
                         <span style="font-size: 11px; font-weight: 600; color: var(--primary); background: #eff6ff; border: 1px solid #bfdbfe; padding: 2px 6px; border-radius: 4px; margin-top: 4px; display: inline-block;">
-                            ${candidate.experience_years} Yrs
+                            ${candidate.experience_years} Yrs EPE
                         </span>
                     </td>
                     <td><strong>${candidate.skills_score}</strong><span class="score-muted">/30</span></td>
@@ -426,6 +592,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     formData.append('max_experience_years', getVal('max_experience_years') || "7");
                     formData.append('target_location', getVal('target_location'));
                     formData.append('passing_score', getVal('passing_score') || "60");
+                    formData.append('role_preset', getVal('role_preset') || 'scouting');
 
                     formData.append('mandatory_experience', getCheck('mandatory_experience'));
                     formData.append('mandatory_location', getCheck('mandatory_location'));
@@ -573,7 +740,7 @@ window.openDashboard = function (index) {
     const iconSkills = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px; color:var(--primary); vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>`;
     const iconEdu = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px; color:var(--primary); vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path></svg>`;
     const iconLocation = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px; color:var(--text-muted); vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>`;
-    const iconEmail = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px; color:var(--text-muted); vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>`;
+    const iconEmail = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px; color:var(--text-muted); vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v10a2 2 0 002 2z"></path></svg>`;
     const iconPhone = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:8px; color:var(--text-muted); vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>`;
     const iconWarning = `<svg width="20" height="20" fill="none" stroke="var(--danger)" stroke-width="2" viewBox="0 0 24 24" style="margin-left:6px; vertical-align:text-bottom;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
 
@@ -603,10 +770,13 @@ window.openDashboard = function (index) {
                     <p style="margin-bottom: 2px; display: flex; align-items: center;">
                         ${iconExp}<strong>Experience:</strong>&nbsp;${cand.experience_score}/40 
                         <span style="margin-left: 10px; background: #eff6ff; border: 1px solid #bfdbfe; color: var(--primary); padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;">
-                            Total: ${cand.experience_years} Years
+                            EPE: ${cand.experience_years} Yrs
                         </span>
                     </p>
                     <div style="margin-left: 26px; font-size: 0.85em; color: var(--text-muted);">${cand.experience_details || cand.experience_years + ' years detected'}</div>
+                    <div style="margin-left: 26px; margin-top: 4px; font-size: 0.8em; color: var(--text-main);">
+                        Full-Time: <strong>${cand.full_time_years || 0} Yrs</strong> | Internships: <strong>${cand.internship_months || 0} Months</strong>
+                    </div>
                 </div>
                 
                 <div style="margin-bottom: 12px;">
@@ -615,12 +785,44 @@ window.openDashboard = function (index) {
                 </div>
                 <div style="margin-bottom: 12px;">
                     <p style="margin-bottom: 2px;">${iconEdu}<strong>Education:</strong> ${cand.education_score}/30</p>
-
                     <div style="margin-left: 26px; font-size: 0.85em; color: var(--text-muted);">${cand.education_details || 'Score based on degree match'}</div>
                 </div>
                 <div>
                     <p style="margin-bottom: 2px;">${iconLocation}<strong>Location:</strong> <span style="color: ${locColor}; font-weight: bold;">${cand.location_relevancy}</span></p>
                     <div style="margin-left: 26px; font-size: 0.85em; color: var(--text-muted);">${cand.location_details || cand.candidate_location}</div>
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h4>Role Fit Radar (Godrej MUUCHSTAC)</h4>
+                <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                            <span>🔍 Scouting:</span> <span>${cand.role_fit_scouting || 0}/100</span>
+                        </div>
+                        <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 2px;">
+                            <div style="background: #3b82f6; width: ${cand.role_fit_scouting || 0}%; height: 100%; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                            <span>🎬 Content Creation:</span> <span>${cand.role_fit_content || 0}/100</span>
+                        </div>
+                        <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 2px;">
+                            <div style="background: #8b5cf6; width: ${cand.role_fit_content || 0}%; height: 100%; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                            <span>🤝 Finalization:</span> <span>${cand.role_fit_finalization || 0}/100</span>
+                        </div>
+                        <div style="background: #e2e8f0; height: 6px; border-radius: 3px; margin-top: 2px;">
+                            <div style="background: #10b981; width: ${cand.role_fit_finalization || 0}%; height: 100%; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 12px; font-size: 12px; background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                    <strong>Niche Alignment (${cand.niche_fit_score || 0}%):</strong> ${cand.niche_fit_details || 'Evaluated for Men\'s Grooming & D2C.'}
                 </div>
             </div>
             
