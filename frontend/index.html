@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muuchstac ATS Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div class="app-header">
+        <h1>ATS Engine</h1>
+        <p>AI-Powered Batch Resume Screening</p>
+
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle Theme">
+            <svg id="themeIcon" width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"></svg>
+        </button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <form id="atsForm">
+
+                <div class="form-group" style="position: relative;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+                        <label for="job_description"
+                            style="margin-bottom: 0; display: flex; align-items: center; gap: 8px;">
+                            Job Description
+                            <span id="jdExtractLoader" class="hidden"
+                                style="color: var(--primary); font-size: 12px; display: flex; align-items: center; gap: 4px;">
+                                <svg class="btn-spinner" width="14" height="14" fill="none" stroke="currentColor"
+                                    stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                                    </path>
+                                </svg>
+                                AI extracting requirements...
+                            </span>
+                        </label>
+
+                        <div class="jd-library-controls" style="display: flex; gap: 8px;">
+                            <select id="jd_selector"
+                                style="padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border-color); font-size: 13px;">
+                                <option value="">-- Load Saved JD --</option>
+                            </select>
+                            <button type="button" id="saveJDBtn" class="action-btn" style="padding: 4px 10px;">Save
+                                JD</button>
+                        </div>
+                    </div>
+
+                    <div id="jd_save_panel" class="hidden" style="margin-bottom: 10px; display: flex; gap: 8px;">
+                        <input type="text" id="jd_title" placeholder="Enter a title (e.g., 'Senior Marketing Mgr')"
+                            style="padding: 6px 10px; flex-grow: 1;">
+                        <button type="button" id="confirmSaveJDBtn" class="action-btn"
+                            style="background: var(--success); color: white; border-color: var(--success);">Confirm
+                            Save</button>
+                        <button type="button" id="cancelSaveJDBtn" class="action-btn"
+                            style="color: var(--danger); border-color: var(--danger);">Cancel</button>
+                    </div>
+
+                    <textarea id="job_description" rows="5" placeholder="Paste the full job description here..."
+                        required></textarea>
+
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="required_skills">Core Skills (Comma separated)</label>
+                        <input type="text" id="required_skills" placeholder="e.g., Python, React, SQL">
+                        <div class="toggle-wrapper">
+                            <label class="switch">
+                                <input type="checkbox" id="mandatory_skills">
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="toggle-text">Mandatory (Hard Filter)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="required_education">Required Education</label>
+                        <input type="text" id="required_education" placeholder="e.g., Bachelor's in Computer Science">
+                        <div class="toggle-wrapper">
+                            <label class="switch">
+                                <input type="checkbox" id="mandatory_education">
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="toggle-text">Mandatory (Hard Filter)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Experience Range</label>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input type="number" id="min_experience_years" value="1" step="0.5" style="width: 100%;">
+                            <span style="color: var(--text-muted); font-size: 14px; white-space: nowrap;">to</span>
+                            <input type="number" id="max_experience_years" value="7" step="0.5" style="width: 100%;">
+                            <span
+                                style="color: var(--text-main); font-size: 14px; font-weight: 500; white-space: nowrap;">Years</span>
+                        </div>
+                        <div class="toggle-wrapper">
+                            <label class="switch">
+                                <input type="checkbox" id="mandatory_experience">
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="toggle-text">Mandatory (Hard Filter)</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="target_location">Target Location</label>
+                        <input type="text" id="target_location" value="Borivali, Mumbai">
+                        <div class="toggle-wrapper">
+                            <label class="switch">
+                                <input type="checkbox" id="mandatory_location" checked>
+                                <span class="slider round"></span>
+                            </label>
+                            <span class="toggle-text">Mandatory (Hard Filter)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="passing_score">Passing Score</label>
+                        <div class="modern-number-input">
+                            <input type="number" id="passing_score" value="60" min="0" max="100">
+                            <div class="spinner-controls">
+                                <button type="button" tabindex="-1" class="spin-up"
+                                    onclick="document.getElementById('passing_score').stepUp()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 15l-6-6-6 6" />
+                                    </svg>
+                                </button>
+                                <button type="button" tabindex="-1" class="spin-down"
+                                    onclick="document.getElementById('passing_score').stepDown()">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M6 9l6 6 6-6" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Resumes (PDF/DOCX)</label>
+                    <div id="dropZone" class="drop-zone">
+                        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12">
+                            </path>
+                        </svg>
+                        <p id="dropZoneText">Drag & Drop resumes here or <strong>Click to browse</strong></p>
+                        <input type="file" id="files" multiple accept=".pdf,.docx" style="display: none;">
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                        style="vertical-align: middle; margin-right: 8px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Analyze Batch
+                </button>
+            </form>
+        </div>
+
+        <div id="loading" class="card hidden" style="margin-top: 30px;">
+
+            <div
+                style="display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: var(--primary); font-weight: 600;">
+                <svg class="btn-spinner" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24" style="margin-right: 8px;">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                    </path>
+                </svg>
+                <span id="loadingStatusText">AI Engine is analyzing candidates...</span>
+            </div>
+            <div id="batchProgressText" style="text-align: center; margin-bottom: 25px; font-size: 14px; color: var(--text-muted); font-weight: 500;"></div>
+
+            <div class="analytics-grid">
+                <div class="stat-card"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px;">
+                    <div class="skeleton-box" style="width: 100px; height: 12px; margin-bottom: 15px;"></div>
+                    <div class="skeleton-box" style="width: 50px; height: 36px; border-radius: 8px;"></div>
+                </div>
+                <div class="stat-card"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px;">
+                    <div class="skeleton-box" style="width: 80px; height: 12px; margin-bottom: 15px;"></div>
+                    <div class="skeleton-box" style="width: 50px; height: 36px; border-radius: 8px;"></div>
+                </div>
+                <div class="stat-card"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 110px;">
+                    <div class="skeleton-box" style="width: 80px; height: 12px; margin-bottom: 15px;"></div>
+                    <div class="skeleton-box" style="width: 50px; height: 36px; border-radius: 8px;"></div>
+                </div>
+            </div>
+
+            <div class="results-header" style="margin-top: 30px;">
+                <div class="skeleton-box" style="width: 250px; height: 28px; border-radius: 6px;"></div>
+            </div>
+
+            <div class="table-container" style="margin-top: 15px;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Exp</th>
+                            <th>Skills</th>
+                            <th>Edu</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="skeleton-box" style="width: 140px; height: 16px; margin-bottom: 8px;"></div>
+                                <div class="skeleton-box" style="width: 180px; height: 12px; margin-bottom: 6px;"></div>
+                                <div class="skeleton-box" style="width: 120px; height: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 80px; height: 26px; border-radius: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 60px; height: 16px; margin-bottom: 6px;"></div>
+                                <div class="skeleton-box" style="width: 100px; height: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 90px; height: 32px; border-radius: 6px;"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="skeleton-box" style="width: 160px; height: 16px; margin-bottom: 8px;"></div>
+                                <div class="skeleton-box" style="width: 190px; height: 12px; margin-bottom: 6px;"></div>
+                                <div class="skeleton-box" style="width: 110px; height: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 80px; height: 26px; border-radius: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 70px; height: 16px; margin-bottom: 6px;"></div>
+                                <div class="skeleton-box" style="width: 90px; height: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 90px; height: 32px; border-radius: 6px;"></div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="skeleton-box" style="width: 130px; height: 16px; margin-bottom: 8px;"></div>
+                                <div class="skeleton-box" style="width: 170px; height: 12px; margin-bottom: 6px;"></div>
+                                <div class="skeleton-box" style="width: 130px; height: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 80px; height: 26px; border-radius: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 40px; height: 20px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 50px; height: 16px; margin-bottom: 6px;"></div>
+                                <div class="skeleton-box" style="width: 110px; height: 12px;"></div>
+                            </td>
+                            <td>
+                                <div class="skeleton-box" style="width: 90px; height: 32px; border-radius: 6px;"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="resultsSection" class="card hidden" style="margin-top: 30px;">
+
+            <div class="analytics-grid">
+                <div class="stat-card">
+                    <p>Total Processed</p>
+                    <h3 id="statTotal">0</h3>
+                </div>
+                <div class="stat-card success-stat">
+                    <p>Qualified</p>
+                    <h3 id="statQualified">0</h3>
+                </div>
+                <div class="stat-card danger-stat">
+                    <p>Rejected</p>
+                    <h3 id="statRejected">0</h3>
+                </div>
+            </div>
+
+            <div id="duplicateAlertSection" class="hidden" style="margin-top: 25px; padding: 15px 20px; background-color: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; color: var(--text-main); font-size: 14px; display: flex; align-items: center; gap: 12px; transition: all 0.3s ease;">
+                <svg width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" viewBox="0 0 24 24" style="flex-shrink: 0;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span><strong>Duplicate candidates merged:</strong> <span id="duplicateNamesList" style="font-weight: 600; color: #d97706;">None</span></span>
+            </div>
+
+            <div class="results-header" style="margin-top: 30px;">
+                <h2>Candidate Breakdown</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Candidate</th>
+                            <th>Status</th>
+                            <th>Total</th>
+                            <th>Exp</th>
+                            <th>Skills</th>
+                            <th>Edu</th>
+                            <th>Location</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="candidateModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-btn" id="closeModal">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <div id="toastContainer"
+        style="position: fixed; top: 20px; left: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; max-width: 380px; width: 100%;">
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
